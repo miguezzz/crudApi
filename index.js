@@ -105,25 +105,6 @@ app.post('/pessoas', async (req, res) => {
     }
 });
 
-// adicional: ver todas as pessoas
-app.get('/pessoas', async (req, res) => {
-    try {
-        const result = await pool.query(
-            `
-            SELECT *
-            FROM pessoas
-            `
-        );
-
-        res.status(200).json(result.rows);
-
-    } catch (error) {
-        // retorna 500 para erros internos do servidor
-        console.error('Erro ao consultar pessoas:', error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-})
-
 // implementando endpoint GET /pessoas/:id
 app.get('/pessoas/:id', async (req, res) => {
     const { id } = req.params;
