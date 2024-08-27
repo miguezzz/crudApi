@@ -1,7 +1,7 @@
 # CRUD API com Node.JS e PostgreSQL
 
 ## Descrição
-Esta API foi desenvolvida em Node.js utilizando o Express para gerenciar requisições HTTP e o PostgreSQL como banco de dados relacional. A API implementa um CRUD (Create, Read, Update, Delete) para gerenciar informações de pessoas, permitindo criar (POST), consultar(GET), atualizar(UPDATE) e excluir(DELETE) registros.
+Esta API foi desenvolvida em Node.js utilizando o Express para gerenciar requisições HTTP e o PostgreSQL como banco de dados relacional. A API implementa um CRUD (Create, Read, Update, Delete) para gerenciar informações de pessoas, permitindo criar (POST), consultar(GET), atualizar(PUT) e excluir(DELETE) registros.
 
 ## Versões Utilizadas
 
