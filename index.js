@@ -7,6 +7,14 @@ const { Pool } = require('pg');
 // importa o modulo dotenv
 const dotenv = require('dotenv');
 
+// Importa o módulo 'path' do Node.js, que fornece utilitários para trabalhar com caminhos de arquivos e diretórios.
+// O módulo 'path' permite manipular e resolver caminhos de forma independente do sistema operacional.
+const path = require('path');
+
+// Importa o módulo 'fs' (File System) do Node.js, que fornece uma API para interagir com o sistema de arquivos.
+// O módulo 'fs' permite ler, escrever, manipular e excluir arquivos e diretórios.
+const fs = require('fs');
+
 // carrega as variaveis de ambiente do .env
 dotenv.config();
 
@@ -24,44 +32,72 @@ const pool = new Pool({
     database: process.env.DB_NAME,
 });
 
+// função assíncrona para inicializar o banco de dados
+async function initDb() {
+    const client = await pool.connect();
+    try {
+        const schemaPath = path.join(__dirname, 'schema.sql');
+        // lê o conteúdo do arquivo schema.sql de forma síncrona e o armazena em uma variável como uma string UTF-8
+        const schema = fs.readFileSync(schemaPath, 'utf8');
+        // executa o conteúdo do arquivo schema.sql como um comando SQL no banco de dados
+        await client.query(schema);
+        console.log('Banco de dados inicializado com sucesso!');
+    } catch (err) {
+        console.error('Erro ao inicializar o banco de dados:', err);
+    } finally {
+        client.release();
+    }
+}
+
+initDb();
+
 const port = process.env.PORT || 3000;  // usa a porta do .env ou 3000 como padrão
+
+app.get('/', (req, res) => {
+    res.send('Bem-vindo à API!');
+  });
 
 // implementando a rota POST /pessoas para criar uma nova pessoa
 app.post('/pessoas', async (req, res) => {
+    
+    // obtendo os dados da requisicao
+    const { apelido, nome, nascimento, stack } = req.body;
+
+    // validando se os campos obrigatorios estao presentes
+    if (!apelido || !nome || !nascimento) {
+        return res.status(422).json({ error: 'Campos obrigatórios faltando!' });
+    }
+
+    // validando o comprimento dos campos
+    if (apelido.length > 32 || nome.length > 100) {
+        return res.status(422).json({ error: 'Comprimento dos campos excede o permitido.' });
+    }
+
+    // validando o formato da data (AAAA-MM-DD) com regex
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) {
+        return res.status(422).json({ error: 'Formato de data inválido! Por favor, siga o formato AAAA-MM-DD.' });
+    }
+
+    // validando o formato da stack. Explicando >>>
+    // caso exista a stack E stack não seja array, error 422
+    // OU caso algum elemento dentro de stack tenha comprimento maior que 32 carac., error 422 
+    if (stack && !Array.isArray(stack) || stack.some(item => item.length > 32)) {
+        return res.status(422).json({ error: 'Formato inválido para stack.' });
+    }
+    
     try {
-        // obtenbdo os dados da requisicao
-        const { apelido, nome, nascimento, stack } = req.body;
+        // Conectar ao banco de dados
+        const client = await pool.connect();
 
-        // validando se os campos obrigatorios estao presentes
-        if (!apelido || !nome || !nascimento) {
-            return res.status(422).json({ error: 'Campos obrigatórios faltando!' });
-        }
-
-        // validando o comprimento dos campos
-        if (apelido.length > 32 || nome.length > 100) {
-            return res.status(422).json({ error: 'Comprimento dos campos excede o permitido.' });
-        }
-
-        // validando o formato da data (AAAA-MM-DD) com regex
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) {
-            return res.status(422).json({ error: 'Formato de data inválido! Por favor, siga o formato AAAA-MM-DD.' });
-        }
-
-        // validando o formato da stack. Explicando >>>
-        // caso exista a stack E stack não seja array, error 422
-        // OU caso algum elemento dentro de stack tenha comprimento maior que 32 carac., error 422 
-        if (stack && !Array.isArray(stack) || stack.some(item => item.length > 32)) {
-            return res.status(422).json({ error: 'Formato inválido para stack.' });
-        }
-
-        // inserindo a nova pessoa no banco de dados
-        const result = await pool.query(
-            'INSERT INTO pessoas (apelido, nome, nascimento, stack) VALUES ($1, $2, $3, $4) RETURNING *',
-            [apelido, nome, nascimento, stack ? JSON.stringify(stack) : null]
+        // Inserir dados na tabela
+        await client.query(
+        `INSERT INTO pessoas (apelido, nome, nascimento, stack)
+        VALUES ($1, $2, $3, $4)`,
+        [apelido, nome, nascimento, stack || []] // garantir que stack seja um array, mesmo que não seja fornecido
         );
 
-        // retorna a resposta com o status 201 (Created) e os dados da nova pessoa
-        res.status(201).json(result.rows[0]);
+        client.release(); // Liberar o cliente após a operação
+        return res.status(201).json({ message: 'Pessoa criada com sucesso.' });
     } catch (error) {
         console.error('Erro ao criar pessoa:', error);
         res.status(400).json({ error: 'Erro na requisição.' });
