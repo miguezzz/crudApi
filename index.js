@@ -68,6 +68,28 @@ app.post('/pessoas', async (req, res) => {
     }
 });
 
+// implementando endpoint GET /pessoas/:id
+app.get('/pessoas/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      // consulta a pessoa com o ID fornecido
+      const result = await pool.query('SELECT * FROM pessoas WHERE id = $1', [id]);
+  
+      if (result.rows.length > 0) {
+        // retorna 200 (pessoa encontrada)
+        res.status(200).json(result.rows[0]);
+      } else {
+        // ou retorna 404 (pessoa não encontrada)
+        res.status(404).json({ message: 'Pessoa não encontrada' });
+      }
+    } catch (error) {
+      // retorna 500 para erros internos do servidor
+      console.error('Erro ao consultar a pessoa:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  });
+
 // inicia o servidor e escuta na porta definida
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
