@@ -56,14 +56,6 @@ Cria uma nova pessoa na base de dados.
     - 422 Unprocessable Entity: Erro de validação nos dados fornecidos.
     - 400 Bad Request: Para outros erros de requisição.
 
-### Buscar todas as Pessoas (GET /pessoas)
-
-Retorna uma lista com todas as pessoas na base de dados.
-
-- Respostas:
-    - 200 OK: Lista de pessoas (pode estar vazia).
-    - 500: Erro interno no servidor.
-
 ### Consultar pessoa por ID (GET /pessoas/:id)
 
 Consulta as informações de uma pessoa com base no id.
@@ -101,7 +93,7 @@ Exclui uma pessoa do banco de dados com base no id.
     - 204 No Content: Pessoa excluída com sucesso.
     - 400 Bad Request: Erro na requisição ou ID inválido.
 
-## Exemplo de testes
+## Exemplos de testes
 
 ### Testando POST /pessoas com curl
 ```bash
@@ -115,8 +107,29 @@ curl -X POST http://localhost:3000/pessoas \
 }'
 ```
 
-### Testando GET /pessoas com curl
+### Testando GET /pessoas/:id com curl
 
 ```bash
-curl -X GET http://localhost:3000/pessoas
+curl -X GET http://localhost:3000/pessoas/1
+```
+
+### Testando GET /pessoas?t= com curl
+
+```bash
+curl -X GET http://localhost:3000/pessoas?t=estag
+```
+
+### Testando PUT /pessoas/:id com curl
+```bash
+curl -X PUT http://localhost:3000/pessoas/1 \
+-H "Content-Type: application/json" \
+-d '{
+  "apelido": "Junior",
+  "stack": ["Node", "Angular"]
+}'
+```
+
+### Testando DELETE /pessoas/:id com curl
+```bash
+curl -X DELETE http://localhost:3000/pessoas/1
 ```
