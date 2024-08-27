@@ -96,12 +96,12 @@ app.post('/pessoas', async (req, res) => {
         [apelido, nome, nascimento, stack || []] // garantir que stack seja um array, mesmo que não seja fornecido
         );
 
+        client.release(); // libera cliente após a operação
+
         return res.status(201).json({ message: 'Pessoa criada com sucesso.' });
     } catch (error) {
         console.error('Erro ao criar pessoa:', error);
         res.status(400).json({ error: 'Erro na requisição.' });
-    } finally {
-        client.release(); // libera cliente após a operação
     }
 });
 
@@ -153,13 +153,13 @@ app.get('/pessoas', async (req, res) => {
                 )
         `, [`%${termo}%`]);
 
+        client.release(); // libera cliente
+
         // retorna o resultado da consulta
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Erro ao buscar pessoas:', err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
-    } finally {
-        client.release(); // libera cliente
     }
 });
 
@@ -222,6 +222,34 @@ app.put('/pessoas/:id', async(req, res) => {
     } catch (error) {
         console.error('Erro ao atualizar a pessoa:', error);
         res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
+// implementando o endpoint DELETE /pessoas/:id para excluir uma pessoa
+app.delete('/pessoas/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // conecta ao banco
+        const client = await pool.connect();
+
+        // executa a exclusão da pessoa com o ID fornecido
+        const result = await client.query('DELETE FROM pessoas WHERE id = $1', [id]);
+
+        client.release(); // libera o cliente pós operação
+
+        // verifica se a exclusão realmente aconteceu
+        if (result.rowCount === 0) {
+            // Se nenhuma linha foi afetada, significa que a pessoa não foi encontrada
+            return res.status(400).json({ error: 'Pessoa não encontrada ou não foi possível excluir.' });
+        }
+
+        // exclusão bem-sucedida
+        return res.status(204).send();
+    } catch (error) {
+        // erro, 400 - Bad Request
+        console.error('Erro ao excluir pessoa:', error);
+        res.status(400).json({ error: 'Erro na requisição.' });
     }
 });
 
