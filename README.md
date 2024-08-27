@@ -100,3 +100,23 @@ Exclui uma pessoa do banco de dados com base no id.
 - Respostas:
     - 204 No Content: Pessoa excluída com sucesso.
     - 400 Bad Request: Erro na requisição ou ID inválido.
+
+## Exemplo de testes
+
+### Testando POST /pessoas com curl
+```bash
+curl -X POST http://localhost:3000/pessoas \
+-H "Content-Type: application/json" \
+-d '{
+  "apelido": "estagiario",
+  "nome": "Victor Miguez",
+  "nascimento": "2004-05-12",
+  "stack": ["Node", "React", "Express", "Python"]
+}'
+```
+
+### Testando GET /pessoas com curl
+
+```bash
+curl -X GET http://localhost:3000/pessoas
+```
