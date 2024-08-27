@@ -26,13 +26,13 @@ Configure o arquivo `.env` com as seguintes variáveis:
 
 1. Clone o repositório: git@github.com:miguezzz/crudApi.git ou https://github.com/miguezzz/crudApi.git
 2. Instale as dependências: 
-    - Site oficial Node: https://nodejs.org/
+    - Site oficial Node: https://nodejs.org/ ou no WSL2: https://tocodando.medium.com/instalando-node-js-no-wsl2-1387f87bf79a
     - verifique se o node e o npm foram instalados corretamente:
     `node -v`
     `npm -v`
+    - Para instalar o PostgreSQL, siga as instruções disponíveis em https://www.postgresql.org/download/ ou no WSL2: https://dev.to/sfpear/install-and-use-postgres-in-wsl-423d.
     - No diretório raiz do projeto, execute `npm install`. Isto irá instalar todas as dependências listadas no arquivo package.json, incluindo o express, pg, dotenv.
-    - Para instalar o PostgreSQL, siga as instruções disponíveis em https://www.postgresql.org/download/.
-3. Configure o arquivo `.env`.
+3. Certifique a configuração correta do arquivo `.env`.
 4. Inicie o servidor: `npm start`.
 
 ## Utilizando os ENDPOINTS
@@ -55,6 +55,14 @@ Cria uma nova pessoa na base de dados.
     - 201 Created: Pessoa criada com sucesso.
     - 422 Unprocessable Entity: Erro de validação nos dados fornecidos.
     - 400 Bad Request: Para outros erros de requisição.
+
+### Buscar todas as Pessoas (GET /pessoas)
+
+Retorna uma lista com todas as pessoas na base de dados.
+
+- Respostas:
+    - 200 OK: Lista de pessoas (pode estar vazia).
+    - 500: Erro interno no servidor.
 
 ### Consultar pessoa por ID (GET /pessoas/:id)
 
