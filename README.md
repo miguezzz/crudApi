@@ -34,6 +34,7 @@ Configure o arquivo `.env` com as seguintes variáveis:
     - No diretório raiz do projeto, execute `npm install`. Isto irá instalar todas as dependências listadas no arquivo package.json, incluindo o express, pg, dotenv.
 3. Certifique a configuração correta do arquivo `.env`.
 4. Inicie o servidor: `npm start`.
+5. verifique o funcionamento em localhost:3000/
 
 ## Utilizando os ENDPOINTS
 
