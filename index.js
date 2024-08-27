@@ -160,6 +160,68 @@ app.get('/pessoas', async (req, res) => {
     }
 });
 
+// implementando a rota PUT /pessoas/:id para atualizar uma pessoa
+app.put('/pessoas/:id', async(req, res) => {
+    const { id } = req.params;
+    const { apelido, nome, nascimento, stack } = req.body;
+
+    // verifica se o ID é fornecido e é um número
+    if (isNaN(id)) {
+        return res.status(422).json({ error: 'ID inválido.' });
+    }
+
+    // verifica se pelo menos um campo de alteração é fornecido
+    if (!apelido && !nome && !nascimento && !stack) {
+        return res.status(422).json({ error: 'Nenhum campo foi fornecido.' });
+    }
+
+    // valida os campos fornecidos
+    if (apelido && (apelido.length > 32 || typeof apelido !== 'string')) {
+        return res.status(422).json({ error: 'Campo apelido inválido.' });
+    }
+    if (nome && (nome.length > 100 || typeof nome !== 'string')) {
+        return res.status(422).json({ error: 'Campo nome inválido.' });
+    }
+    if (nascimento && !/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) {
+        return res.status(422).json({ error: 'Formato de data inválido. Use AAAA-MM-DD.' });
+    }
+    if (stack && (!Array.isArray(stack) || stack.some(item => item.length > 32))) {
+        return res.status(422).json({ error: 'Formato inválido para stack.' });
+    }
+
+    try {
+        // conecta ao banco de dados
+        const client = await pool.connect();
+
+        // atualiza os dados da pessoa
+        // explicando COALESCE: The COALESCE() function takes in at least one value (value_1).
+        // It will return the first value in the list that is non-null.
+        // ou seja, se o valor for atualizado, como $ vem antes, será modificado.
+        // caso contrário, o valor antigo permanecerá.
+        const result = await client.query(`
+            UPDATE pessoas
+            SET apelido = COALESCE($1, apelido),
+                nome = COALESCE($2, nome),
+                nascimento = COALESCE($3, nascimento),
+                stack = COALESCE($4, stack)
+            WHERE id = $5
+            RETURNING *;
+        `, [apelido, nome, nascimento, stack || null, id]);
+
+        client.release(); // libera cliente após operação
+
+        if (result.rows.length > 0) {
+            // pessoa encontrada
+            res.status(200).json(result.rows[0]);
+        } else {
+            res.status(404).json({ message: 'Pessoa não encontrada' });
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar a pessoa:', error);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
 // inicia o servidor e escuta na porta definida
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
