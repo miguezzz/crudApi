@@ -54,7 +54,7 @@ initDb();
 const port = process.env.PORT || 3000;  // usa a porta do .env ou 3000 como padrão
 
 app.get('/', (req, res) => {
-    res.send('Bem-vindo à API!');
+    res.send('Bem-vindo(a) à API!');
 });
 
 // implementando a rota POST /pessoas para criar uma nova pessoa
@@ -96,11 +96,12 @@ app.post('/pessoas', async (req, res) => {
         [apelido, nome, nascimento, stack || []] // garantir que stack seja um array, mesmo que não seja fornecido
         );
 
-        client.release(); // Liberar o cliente após a operação
         return res.status(201).json({ message: 'Pessoa criada com sucesso.' });
     } catch (error) {
         console.error('Erro ao criar pessoa:', error);
         res.status(400).json({ error: 'Erro na requisição.' });
+    } finally {
+        client.release(); // libera cliente após a operação
     }
 });
 
@@ -157,6 +158,8 @@ app.get('/pessoas', async (req, res) => {
     } catch (err) {
         console.error('Erro ao buscar pessoas:', err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
+    } finally {
+        client.release(); // libera cliente
     }
 });
 
