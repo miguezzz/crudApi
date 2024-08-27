@@ -55,7 +55,7 @@ const port = process.env.PORT || 3000;  // usa a porta do .env ou 3000 como padr
 
 app.get('/', (req, res) => {
     res.send('Bem-vindo à API!');
-  });
+});
 
 // implementando a rota POST /pessoas para criar uma nova pessoa
 app.post('/pessoas', async (req, res) => {
@@ -79,7 +79,7 @@ app.post('/pessoas', async (req, res) => {
     }
 
     // validando o formato da stack. Explicando >>>
-    // caso exista a stack E stack não seja array, error 422
+    // caso exista a stack E a stack não seja array, error 422
     // OU caso algum elemento dentro de stack tenha comprimento maior que 32 carac., error 422 
     if (stack && !Array.isArray(stack) || stack.some(item => item.length > 32)) {
         return res.status(422).json({ error: 'Formato inválido para stack.' });
@@ -124,7 +124,41 @@ app.get('/pessoas/:id', async (req, res) => {
       console.error('Erro ao consultar a pessoa:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
-  });
+});
+
+// rota para buscar pessoas por termo
+app.get('/pessoas', async (req, res) => {
+    // Obtém o termo da query string
+    const termo = req.query.t;
+
+    // verifica se o termo foi informado
+    if (!termo) {
+        return res.status(400).json({ error: 'Termo de busca não informado.' });
+    }
+
+    try {
+        // conecta ao banco de dados
+        const client = await pool.connect();
+        
+        // executa a consulta SQL com correspondência parcial do termo procurado
+        const result = await client.query(`
+            SELECT * FROM pessoas
+            WHERE apelido ILIKE $1
+               OR nome ILIKE $1
+               OR EXISTS (
+                SELECT 1
+                FROM unnest(stack) AS element
+                WHERE element ILIKE $1
+                )
+        `, [`%${termo}%`]);
+
+        // retorna o resultado da consulta
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error('Erro ao buscar pessoas:', err);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
 
 // inicia o servidor e escuta na porta definida
 app.listen(port, () => {
