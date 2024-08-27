@@ -9,7 +9,7 @@ Esta API foi desenvolvida em Node.js utilizando o Express para gerenciar requisi
 - **Node.js**: v20.17.0
 - **npm**: v10.8.2
 - **Express**: v4.19.2
-- **PostgreSQL: v14.13
+- **PostgreSQL**: v14.13
 - **dotenv**: v16.4.5
 
 ## Configuração do Ambiente
@@ -25,7 +25,13 @@ Configure o arquivo `.env` com as seguintes variáveis:
 ## Instalação e Execução
 
 1. Clone o repositório: git@github.com:miguezzz/crudApi.git ou https://github.com/miguezzz/crudApi.git
-2. Instale as dependências: `npm install`.
+2. Instale as dependências: 
+    - Site oficial Node: https://nodejs.org/
+    - verifique se o node e o npm foram instalados corretamente:
+    `node -v`
+    `npm -v`
+    - No diretório raiz do projeto, execute `npm install`. Isto irá instalar todas as dependências listadas no arquivo package.json, incluindo o express, pg, dotenv.
+    - Para instalar o PostgreSQL, siga as instruções disponíveis em https://www.postgresql.org/download/.
 3. Configure o arquivo `.env`.
 4. Inicie o servidor: `npm start`.
 
