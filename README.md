@@ -33,8 +33,14 @@ Configure o arquivo `.env` com as seguintes variáveis:
     - Para instalar o PostgreSQL, siga as instruções disponíveis em https://www.postgresql.org/download/ ou no WSL2: https://dev.to/sfpear/install-and-use-postgres-in-wsl-423d.
     - No diretório raiz do projeto, execute `npm install`. Isto irá instalar todas as dependências listadas no arquivo package.json, incluindo o express, pg, dotenv.
 3. Certifique a configuração correta do arquivo `.env`.
-4. Inicie o servidor: `npm start`.
-5. verifique o funcionamento em localhost:3000/
+4. Não se esqueça de criar o banco de dados e o usuário:
+```sql
+CREATE DATABASE crudapi;
+CREATE USER medfutura WITH ENCRYPTED PASSWORD 'medfutura';
+GRANT ALL PRIVILEGES ON DATABASE crudapi TO medfutura;
+```
+5. Inicie o servidor: `npm start`.
+6. verifique o funcionamento em localhost:3000/
 
 ## Utilizando os ENDPOINTS
 
